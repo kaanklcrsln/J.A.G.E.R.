@@ -1,0 +1,208 @@
+:root {
+  --mb: 32px;            /* menu bar height, set from the main process */
+  --notch-w: 180px;      /* notch Macs: set from NSScreen by the main process */
+  --notch-h: 32px;
+  --ease: cubic-bezier(.32, .72, 0, 1);
+  --spring: cubic-bezier(.34, 1.36, .64, 1);
+  --text: rgba(255, 255, 255, .94);
+  --text-2: rgba(255, 255, 255, .62);
+  --text-3: rgba(255, 255, 255, .40);
+  --accent: #7fd4ff;
+  --think: #c9a7ff;
+  --err: #ff7a7a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; background: transparent; overflow: hidden; }
+body {
+  font: 13px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+/* ---------- the island ---------- */
+#island {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 179px;
+  min-height: var(--mb);
+  border-radius: 0 0 18px 18px;
+  overflow: hidden;
+  isolation: isolate;
+  /* Glass: near-black where it meets the notch, lifting to a smoked tint. */
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, .96) 0, rgba(0, 0, 0, .9) var(--mb), rgba(20, 21, 30, .70) 100%);
+  box-shadow:
+    0 20px 50px -12px rgba(0, 0, 0, .55),
+    0 2px 8px rgba(0, 0, 0, .25),
+    inset 0 -1px 0 rgba(255, 255, 255, .10),
+    inset 1px 0 0 rgba(255, 255, 255, .05),
+    inset -1px 0 0 rgba(255, 255, 255, .05);
+  transition:
+    width .55s var(--spring),
+    border-radius .45s var(--ease),
+    box-shadow .4s var(--ease);
+}
+/* Specular sheen across the glass. */
+#island::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 60% at 15% 100%, rgba(255, 255, 255, .07), transparent 60%),
+    radial-gradient(90% 50% at 90% 0%, rgba(140, 170, 255, .06), transparent 70%),
+    linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .045) 48%, transparent 62%);
+  opacity: 0;
+  transition: opacity .4s var(--ease);
+}
+
+#island.open { width: 460px; border-radius: 0 0 30px 30px; }
+#island.open::before { opacity: 1; }
+#island.peek { width: 300px; border-radius: 0 0 22px 22px; }
+
+/* ---------- bar ---------- */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--mb);
+  padding: 0 14px;
+}
+/* Notch Macs: closed, the island is exactly the hardware notch (same size,
+   same black), so it disappears into it. Open, it grows out of the notch and
+   the content starts below it. */
+.notch #island { padding-top: var(--notch-h); }
+.notch #island:not(.open):not(.peek) {
+  width: var(--notch-w);
+  min-height: var(--notch-h);
+  padding-top: 0;
+  border-radius: 0 0 10px 10px;
+  background: #000;
+  box-shadow: none;
+}
+.notch #island:not(.open):not(.peek)::before { opacity: 0; }
+.notch .bar { height: 36px; transition: height .45s var(--ease); }
+.notch #island:not(.open):not(.peek) .bar { height: 0; overflow: hidden; }
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .28);
+  transition: background .3s, box-shadow .3s, transform .3s var(--spring);
+}
+.line {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  color: var(--text);
+  opacity: 0;
+  transition: opacity .25s;
+}
+#island.open .line, #island.peek .line { opacity: 1; }
+
+.wave { flex: none; display: flex; align-items: center; gap: 2.5px; height: 16px; opacity: 0; transition: opacity .25s; }
+.wave i { display: block; width: 3px; height: 4px; border-radius: 2px; background: var(--text); transform-origin: center; transition: height .08s linear; }
+
+.stop {
+  flex: none;
+  display: none;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .12);
+  color: var(--text-2);
+  font: 600 14px/20px -apple-system, sans-serif;
+  cursor: pointer;
+}
+.stop:hover { background: rgba(255, 255, 255, .22); color: var(--text); }
+
+/* ---------- body ---------- */
+.body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .5s var(--ease);
+}
+#island.open .body { grid-template-rows: 1fr; }
+.body-inner { min-height: 0; overflow: hidden; padding: 0 20px; }
+#island.open .body-inner { padding-bottom: 16px; }
+
+.transcript, .reply, .hint, .activity { opacity: 0; transform: translateY(-4px); transition: opacity .35s var(--ease), transform .45s var(--ease); }
+#island.open .transcript, #island.open .reply, #island.open .hint, #island.open .activity { opacity: 1; transform: none; }
+
+.transcript { color: var(--text-2); font-size: 12.5px; margin-top: 2px; }
+.transcript:empty, .reply:empty, .hint:empty, .activity:empty { display: none; }
+.transcript::before { content: "“"; } .transcript::after { content: "”"; }
+
+.activity { list-style: none; margin-top: 10px; display: grid; gap: 5px; }
+.activity li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 12px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.activity li::before { content: ""; position: absolute; left: 2px; top: 6px; width: 5px; height: 5px; border-radius: 50%; background: var(--text-3); }
+.activity li:last-child { color: var(--text-2); }
+[data-state="thinking"] .activity li:last-child::before { background: var(--think); box-shadow: 0 0 8px var(--think); }
+
+.reply { margin-top: 10px; font-size: 14px; line-height: 1.45; color: var(--text); letter-spacing: -.005em; }
+.hint { margin-top: 8px; font-size: 11.5px; color: var(--text-3); }
+
+/* ---------- states ---------- */
+[data-state="idle"] .dot { background: rgba(255, 255, 255, .22); transform: scale(.8); }
+[data-state="idle"].peek .line { color: var(--text-2); font-weight: 400; }
+
+[data-state="listening"] .dot { background: var(--accent); box-shadow: 0 0 10px var(--accent), 0 0 22px rgba(127, 212, 255, .5); animation: breathe 1.6s ease-in-out infinite; }
+[data-state="listening"] .wave { opacity: 1; }
+[data-state="listening"] .wave i { background: var(--accent); }
+
+[data-state="transcribing"] .dot { background: var(--accent); animation: breathe .8s ease-in-out infinite; }
+
+[data-state="thinking"] .dot { background: var(--think); box-shadow: 0 0 12px var(--think); animation: orbit 1.1s linear infinite; }
+[data-state="thinking"] .line {
+  background: linear-gradient(90deg, var(--text-2) 0%, #fff 45%, var(--text-2) 70%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.8s linear infinite;
+}
+[data-state="thinking"] .stop, [data-state="speaking"] .stop, [data-state="listening"] .stop { display: block; }
+
+[data-state="speaking"] .dot { background: #fff; box-shadow: 0 0 12px rgba(255, 255, 255, .8); }
+[data-state="speaking"] .wave { opacity: 1; }
+[data-state="speaking"] .wave i { animation: talk 1s ease-in-out infinite; }
+[data-state="speaking"] .wave i:nth-child(2) { animation-delay: -.6s; }
+[data-state="speaking"] .wave i:nth-child(3) { animation-delay: -.3s; }
+[data-state="speaking"] .wave i:nth-child(4) { animation-delay: -.8s; }
+[data-state="speaking"] .wave i:nth-child(5) { animation-delay: -.15s; }
+
+[data-state="setup"] .dot { background: #ffd27f; animation: breathe 1.2s ease-in-out infinite; }
+[data-state="error"] .dot { background: var(--err); box-shadow: 0 0 10px var(--err); }
+[data-state="error"] .line { color: #ffd0d0; white-space: normal; }
+[data-state="error"] .bar { height: auto; min-height: var(--mb); padding-top: 9px; padding-bottom: 9px; }
+
+@keyframes breathe { 50% { transform: scale(1.35); opacity: .75; } }
+@keyframes orbit { 0% { transform: scale(1); } 50% { transform: scale(.6); } 100% { transform: scale(1); } }
+@keyframes shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+@keyframes talk { 0%, 100% { height: 4px; } 50% { height: 15px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before { animation: none !important; transition-duration: .01s !important; }
+}

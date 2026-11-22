@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob:; connect-src 'none'; img-src 'self' data:" />
+  <title>Jager</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="island" data-state="idle" aria-live="polite">
+    <div class="bar">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="line" id="line"></span>
+      <span class="wave" id="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      <button class="stop" id="stop" type="button" title="Cancel (⌥Esc)" aria-label="Cancel">×</button>
+    </div>
+    <div class="body">
+      <div class="body-inner">
+        <p class="transcript" id="transcript"></p>
+        <ul class="activity" id="activity"></ul>
+        <p class="reply" id="reply"></p>
+        <p class="hint" id="hint"></p>
+      </div>
+    </div>
+  </div>
+  <script src="vad.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>
