@@ -12,6 +12,7 @@ const { app, BrowserWindow, globalShortcut, ipcMain, screen, Tray, Menu, nativeI
 const claude = require('./claude');
 const stt = require('./stt');
 const tts = require('./tts');
+const ema = require('./ema');
 const { matchWake, classify } = require('./wake');
 const { notchFor } = require('./notch');
 
@@ -28,7 +29,7 @@ const WIN_H = 440;
 
 let win = null;
 let tray = null;
-let settings = { wake: true, voice: true };
+let settings = { wake: true, voice: true, replyLanguage: 'en' };
 let job = null;          // running Claude request
 let sessionId = null;
 let lastReplyAt = 0;
@@ -160,6 +161,7 @@ async function think(text, retried = false) {
   listen(idleListenMode()); // "Jager, stop" still works while it runs
   const mine = claude.run(text, {
     sessionId,
+    language: settings.replyLanguage,
     onEvent: (ev) => {
       if (job !== mine) return;
       if (ev.type === 'session') sessionId = ev.sessionId;
@@ -302,10 +304,22 @@ function updateTrayMenu() {
     { type: 'separator' },
     { label: 'Wake word "Jager"', type: 'checkbox', checked: settings.wake, click: (item) => { settings.wake = item.checked; saveSettings(); if (ui.state === 'idle') listen(idleListenMode()); } },
     { label: 'Spoken replies', type: 'checkbox', checked: settings.voice, click: (item) => { settings.voice = item.checked; saveSettings(); if (!settings.voice) tts.stop(); } },
+    { label: 'Reply language', submenu: [
+      { label: 'English', type: 'radio', checked: settings.replyLanguage !== 'tr', click: () => setReplyLanguage('en') },
+      { label: ema.available() ? 'Türkçe (EMA Lightning)' : 'Türkçe (needs npm run setup:turkish)', type: 'radio', checked: settings.replyLanguage === 'tr', click: () => setReplyLanguage('tr') },
+    ] },
     { label: 'New conversation', click: () => { sessionId = null; } },
     { type: 'separator' },
     { label: 'Quit Jager', role: 'quit' },
   ]));
+}
+
+function setReplyLanguage(lang) {
+  settings.replyLanguage = lang;
+  saveSettings();
+  sessionId = null; // a fresh conversation picks up the new language cleanly
+  if (lang === 'tr') ema.start();
+  updateTrayMenu();
 }
 
 function createTray() {
@@ -352,6 +366,7 @@ if (!app.requestSingleInstanceLock()) {
     if (app.dock) app.dock.hide();
     loadSettings();
     stt.init({ userData: app.getPath('userData') });
+    ema.init({ userData: app.getPath('userData') });
     // Only the island's own page may use the microphone, and nothing else.
     session.defaultSession.setPermissionRequestHandler((wc, permission, cb) => cb(permission === 'media' && win && wc === win.webContents));
     session.defaultSession.setPermissionCheckHandler((wc, permission) => permission === 'media' && Boolean(win) && wc === win.webContents);
@@ -368,6 +383,8 @@ if (!app.requestSingleInstanceLock()) {
       });
       return;
     }
+    // Warm the Turkish voice in the background: the model takes ~10 s to load.
+    if (ema.available()) ema.start();
     await recheck();
   });
 
@@ -375,6 +392,7 @@ if (!app.requestSingleInstanceLock()) {
     globalShortcut.unregisterAll();
     if (job) job.cancel();
     tts.stop();
+    ema.stopWorker();
   });
   app.on('window-all-closed', (e) => e.preventDefault());
 }

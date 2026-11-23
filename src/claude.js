@@ -30,9 +30,14 @@ const SYSTEM_PROMPT = [
   'To see the screen, run `screencapture -x /tmp/jager-screen.png` and read that image.',
   'The user speaks to you; their words come from speech recognition and may contain transcription errors, so infer the most likely intent.',
   'Act directly and finish the task. Only ask a question when the request is genuinely ambiguous, and confirm first only before something irreversible the user clearly did not ask for.',
-  'Your final reply is read aloud by text to speech. Reply in Turkish, in one to three short spoken sentences: no markdown, no lists, no code, no URLs or file paths unless the user needs them.',
+  'Your final reply is read aloud by text to speech. Reply in {LANGUAGE}, in one to three short spoken sentences: no markdown, no lists, no code, no URLs or file paths unless the user needs them.',
   'Tone: calm, precise, lightly dry wit, like JARVIS. Say what you did or found, not how.',
 ].join(' ');
+
+const LANGUAGES = { en: 'English', tr: 'Turkish' };
+function systemPrompt(language = 'en') {
+  return SYSTEM_PROMPT.replace('{LANGUAGE}', LANGUAGES[language] || LANGUAGES.en);
+}
 
 function cliEnv() {
   const env = { ...process.env };
@@ -113,7 +118,7 @@ function parseStreamLine(line) {
 
 // Runs one request. Returns { promise, cancel }. promise resolves to
 // { text, sessionId, error?, cancelled? } and never rejects.
-function run(prompt, { sessionId = null, onEvent = () => {}, cwd = os.homedir(), cliPath } = {}) {
+function run(prompt, { sessionId = null, onEvent = () => {}, cwd = os.homedir(), cliPath, language = 'en' } = {}) {
   let child = null;
   let cancelled = false;
   const promise = (async () => {
@@ -121,7 +126,7 @@ function run(prompt, { sessionId = null, onEvent = () => {}, cwd = os.homedir(),
     if (!bin) return { error: 'claude_missing', text: '' };
     if (cancelled) return { cancelled: true, text: '' };
     const args = ['-p', '--output-format', 'stream-json', '--verbose', '--model', MODEL,
-      '--dangerously-skip-permissions', '--append-system-prompt', SYSTEM_PROMPT];
+      '--dangerously-skip-permissions', '--append-system-prompt', systemPrompt(language)];
     if (sessionId) args.push('--resume', sessionId);
     return new Promise((resolve) => {
       child = spawn(bin, args, { cwd, env: cliEnv(), stdio: ['pipe', 'pipe', 'pipe'] });
@@ -167,4 +172,4 @@ function run(prompt, { sessionId = null, onEvent = () => {}, cwd = os.homedir(),
   return { promise, cancel };
 }
 
-module.exports = { run, detectCli, parseStreamLine, describeTool, SYSTEM_PROMPT };
+module.exports = { run, detectCli, parseStreamLine, describeTool, systemPrompt };

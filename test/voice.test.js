@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const { createSegmenter } = require('../renderer/vad');
-const { toSpeech } = require('../src/tts');
+const { toSpeech, pickVoice, isTurkish } = require('../src/tts');
 
 const CHUNK = 160; // 10 ms at 16 kHz
 const quiet = () => ({ pcm: new Int16Array(CHUNK), level: 0.002 });
@@ -47,4 +47,22 @@ test('replies are cleaned up for the ear', () => {
   assert.equal(toSpeech('**Done.** Opened `Safari` — see [docs](https://x.y).'), 'Done. Opened Safari — see docs.');
   assert.equal(toSpeech('# Result\n- one\n- two'), 'Result one two');
   assert.equal(toSpeech('It is at https://example.com/page now'), 'It is at the link now');
+});
+
+test('the voice is the best American male voice installed', () => {
+  const saved = process.env.JAGER_VOICE;
+  delete process.env.JAGER_VOICE;
+  assert.equal(pickVoice(['Samantha', 'Reed (English (US))', 'Fred']), 'Reed (English (US))');
+  assert.equal(pickVoice(['Reed (English (US))', 'Evan (Enhanced)', 'Nathan (Premium)']), 'Nathan (Premium)');
+  assert.equal(pickVoice(['Samantha', 'Yelda']), 'Reed (English (US))');
+  process.env.JAGER_VOICE = 'Daniel';
+  assert.equal(pickVoice(['Reed (English (US))']), 'Daniel');
+  if (saved === undefined) delete process.env.JAGER_VOICE; else process.env.JAGER_VOICE = saved;
+});
+
+test('Turkish replies are told apart from English ones', () => {
+  for (const t of ['Pil yüzde kırk dokuz, yaklaşık iki saat kaldı.', 'Safari açtım.', 'Tamam, şimdi bakıyorum.', 'Bu bir test ve çok kısa.'])
+    assert.equal(isTurkish(t), true, t);
+  for (const t of ['Battery at 49 percent.', 'Opened Safari for you.', 'The café is open.', 'Done. Your Downloads folder is clean.'])
+    assert.equal(isTurkish(t), false, t);
 });

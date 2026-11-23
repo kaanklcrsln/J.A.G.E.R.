@@ -1,6 +1,6 @@
 {
   "name": "jager",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Jager: a JARVIS-style voice agent in a Dynamic Island bar that runs your Mac through Claude Code.",
   "main": "src/main.js",
   "private": true,
@@ -9,7 +9,8 @@
     "smoke": "electron . --smoke",
     "test": "node --test test/*.test.js",
     "dist": "electron-builder --mac --config electron-builder.config.js",
-    "setup:voice": "node scripts/setup-voice.js"
+    "setup:voice": "node scripts/setup-voice.js",
+    "setup:turkish": "node scripts/setup-turkish-voice.js"
   },
   "engines": {
     "node": ">=18"

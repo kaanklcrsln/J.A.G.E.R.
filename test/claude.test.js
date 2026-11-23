@@ -42,15 +42,15 @@ let input = ''; process.stdin.on('data', d => input += d); process.stdin.on('end
   out({ type: 'system', subtype: 'init', session_id: 'new-session' });
   out({ type: 'assistant', message: { content: [{ type: 'tool_use', name: 'Bash', input: { description: 'Checking battery' } }] } });
   out({ type: 'result', subtype: 'success', is_error: false, session_id: 'new-session',
-    result: JSON.stringify({ input, skip: a.includes('--dangerously-skip-permissions'), resume: a[a.indexOf('--resume') + 1], persona: /JARVIS/.test(a[a.indexOf('--append-system-prompt') + 1]), key: process.env.ANTHROPIC_API_KEY || null }) });
+    result: JSON.stringify({ input, skip: a.includes('--dangerously-skip-permissions'), resume: a[a.indexOf('--resume') + 1], persona: /JARVIS/.test(a[a.indexOf('--append-system-prompt') + 1]), lang: (a[a.indexOf('--append-system-prompt') + 1].match(/Reply in (\\w+)/) || [])[1], key: process.env.ANTHROPIC_API_KEY || null }) });
 });`);
   const events = [];
   process.env.ANTHROPIC_API_KEY = 'sk-should-not-leak';
-  const { promise } = run('how much battery is left', { sessionId: 'old-session', cliPath, onEvent: (e) => events.push(e.type) });
+  const { promise } = run('how much battery is left', { sessionId: 'old-session', cliPath, language: 'tr', onEvent: (e) => events.push(e.type) });
   const r = await promise;
   delete process.env.ANTHROPIC_API_KEY;
   const got = JSON.parse(r.text);
-  assert.deepEqual(got, { input: 'how much battery is left', skip: true, resume: 'old-session', persona: true, key: null });
+  assert.deepEqual(got, { input: 'how much battery is left', skip: true, resume: 'old-session', persona: true, lang: 'Turkish', key: null });
   assert.equal(r.sessionId, 'new-session');
   assert.deepEqual(events, ['session', 'tool', 'result']);
 });
