@@ -21,9 +21,9 @@
       answer: 'Lo-fi is on, volume at thirty. Try not to fall asleep.'
     },
     {
-      ask: 'put a meeting with Ece on my calendar tomorrow at nine',
-      steps: ['Read Calendar events', 'Create "Meeting with Ece" at 09:00'],
-      answer: 'Yarın saat dokuza Ece ile toplantıyı ekledim.'
+      ask: 'put a meeting with Raven on my calendar tomorrow at nine',
+      steps: ['Read Calendar events', 'Create "Meeting with Raven" at 09:00'],
+      answer: 'Yarın saat dokuza Raven ile toplantıyı ekledim.'
     },
     {
       ask: 'what\'s eating my RAM?',
