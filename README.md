@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/logo-dark.png" alt="J.A.G.E.R." width="420"></p>
+<p align="center"><img src="logo.png" alt="J.A.G.E.R." width="420"></p>
 
 # J.A.G.E.R.
 
