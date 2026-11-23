@@ -1,4 +1,8 @@
+<p align="center"><img src="docs/logo-dark.png" alt="J.A.G.E.R." width="420"></p>
+
 # J.A.G.E.R.
+
+Website: [kaanklcrsln.github.io/J.A.G.E.R.](https://kaanklcrsln.github.io/J.A.G.E.R./)
 
 Just A Guy Executing Requests. Or Jager. Pronounced "JAY-ger", like the
 German word for hunter, and absolutely not like the drink, although I won't
@@ -91,17 +95,38 @@ Environment variables, if you run it from a terminal:
 | Variable | Default | What |
 |---|---|---|
 | `JAGER_MODEL` | `sonnet` | Model alias passed to `claude --model` |
-| `JAGER_VOICE` | `Yelda` | Any voice from `say -v '?'` |
-| `JAGER_VOICE_RATE` | `195` | Words per minute |
+| `JAGER_VOICE` | best US male voice | Any voice from `say -v '?'` |
+| `JAGER_VOICE_RATE` | `190` | Words per minute |
 | `JAGER_HOTKEY` | `Alt+Space` | Talk key |
 | `JAGER_CANCEL_HOTKEY` | `Alt+Escape` | Panic key |
 | `JAGER_CLAUDE_PATH` | auto | If it can't find `claude` |
 | `JAGER_WHISPER_DIR` | Homebrew | Folder with `whisper-cli` |
 | `JAGER_DEBUG` | off | Logs what the wake word listener heard |
+| `JAGER_EMA_PYTHON` | Jager's venv | Python with `ema-lightning` for Turkish |
 
-It listens in English and answers in Turkish with the Yelda voice, because
-that's how my brain works. Change the reply language in `src/claude.js` and
-the voice with `JAGER_VOICE` if yours works differently.
+It talks back in English with an American guy's voice. Out of the box that's
+Reed, who comes with macOS and sounds like a GPS that went to college. If you
+download Evan or Nathan (System Settings, Accessibility, Spoken Content,
+System Voice, Manage Voices) Jager picks them up on its own and suddenly
+sounds like a person. Highly recommended.
+
+### Türkçe
+
+Jager can also answer in Turkish, and for that it skips `say` entirely and
+uses [EMA Lightning](https://huggingface.co/canberkkkkkk/ema-lightning), a
+tiny Turkish TTS model that runs on your CPU and sounds way better than any
+Turkish voice macOS ships. Set it up once:
+
+```
+npm run setup:turkish
+```
+
+That makes a private Python venv in `~/Library/Application Support/Jager`,
+installs `ema-lightning` and downloads the model (about 35 MB, plus torch,
+which is not tiny, sorry). Then pick Türkçe under Reply language in the Jager
+menu. Any reply that comes out in Turkish goes through EMA, English ones still
+go to the American guy. You still talk to it in English, the ears are English
+only for now.
 
 ## Building it yourself
 

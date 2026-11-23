@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>J.A.G.E.R.</title>
+  <meta name="description" content="A voice assistant that lives in your MacBook's notch and does things on your Mac through Claude Code.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <meta property="og:title" content="J.A.G.E.R.">
+  <meta property="og:description" content="Just A Guy Executing Requests. A voice assistant that lives in your notch.">
+  <meta property="og:image" content="logo-square.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <a href="#" class="brand"><img src="logo-dark.png" alt="J.A.G.E.R."></a>
+  <nav>
+    <a href="#how">how it works</a>
+    <a href="#install">install</a>
+    <a href="https://github.com/kaanklcrsln/J.A.G.E.R.">github</a>
+  </nav>
+</header>
+
+<main>
+
+<section class="hero">
+  <h1>A voice assistant that lives in your notch.</h1>
+  <p class="lede">
+    Say "Jager", ask for something, and it drops out of the notch, gets it done on your Mac
+    and tells you about it. Then it goes back into the notch and pretends it was never there.
+  </p>
+
+  <div class="laptop" aria-label="Jager running in the MacBook notch">
+    <div class="screen">
+      <div class="menubar">
+        <span class="apple"></span><b>Finder</b><span>File</span><span>Edit</span><span>View</span><span class="hide-sm">Go</span><span class="hide-sm">Window</span>
+        <span class="right"><span class="jager-item">Jager</span><span id="clock">10:42</span></span>
+      </div>
+      <div class="notch"></div>
+      <div class="island" id="island" data-state="closed">
+        <div class="bar">
+          <span class="dot"></span>
+          <span class="line" id="line"></span>
+          <span class="wave"><i></i><i></i><i></i><i></i><i></i></span>
+        </div>
+        <div class="body">
+          <div class="body-inner">
+            <p class="said" id="said"></p>
+            <ul class="steps" id="steps"></ul>
+            <p class="reply" id="reply"></p>
+          </div>
+        </div>
+      </div>
+      <div class="desk">
+        <div class="win w1"><i></i><i></i><i></i></div>
+        <div class="win w2"><i></i><i></i><i></i></div>
+      </div>
+    </div>
+    <div class="base"></div>
+  </div>
+  <p class="caption" id="caption">&nbsp;</p>
+
+  <div class="downloads" id="download">
+    <a class="btn primary" href="https://github.com/kaanklcrsln/J.A.G.E.R./releases/latest/download/Jager-arm64.dmg">
+      <span class="os">macOS</span><span class="sub">Apple Silicon (M1 and up)</span>
+    </a>
+    <a class="btn" href="https://github.com/kaanklcrsln/J.A.G.E.R./releases/latest/download/Jager-x64.dmg">
+      <span class="os">macOS</span><span class="sub">Intel</span>
+    </a>
+    <span class="btn disabled" title="Jager leans on macOS for its voice, the notch and AppleScript. A Linux port is on the list.">
+      <span class="os">Linux</span><span class="sub">not yet, sorry penguins</span>
+    </span>
+  </div>
+  <p class="small">Free, MIT licensed, about 120 MB. Needs Claude Code and a microphone.</p>
+</section>
+
+<section id="how">
+  <h2>How it works</h2>
+  <p>
+    Jager itself is pretty dumb, on purpose. It has ears, a mouth and a nice little panel.
+    The thinking happens in <a href="https://claude.com/claude-code">Claude Code</a>, which Jager
+    runs in the background with your request. Claude has a shell, AppleScript, your files and
+    the ability to take a screenshot when it needs to look at something. You keep working
+    while it does its thing. The notch shows you what it's up to.
+  </p>
+
+  <div class="flow" role="img" aria-label="You speak, Jager listens and transcribes on your Mac, Claude Code works in the background with the shell, AppleScript, files and screenshots, then Jager speaks the answer.">
+    <div class="node you">
+      <span class="tag">1</span>
+      <b>You</b>
+      <span>"Jager, mute my Slack and open my notes"</span>
+    </div>
+    <div class="arrow">→</div>
+    <div class="node ears">
+      <span class="tag">2</span>
+      <b>Jager, in the notch</b>
+      <span>hears its name, transcribes on your Mac with whisper.cpp</span>
+    </div>
+    <div class="arrow">→</div>
+    <div class="lane">
+      <span class="lane-label">in the background</span>
+      <div class="node brain">
+        <span class="tag">3</span>
+        <b>Claude Code</b>
+        <span>figures out how, then does it</span>
+        <ul class="tools">
+          <li>shell</li><li>AppleScript</li><li>files</li><li>screenshots</li><li>web</li>
+        </ul>
+      </div>
+      <div class="live">you keep working, live steps show up in the notch ↑</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="node mouth">
+      <span class="tag">4</span>
+      <b>Jager talks back</b>
+      <span>one or two sentences, out loud, then back into the notch</span>
+    </div>
+  </div>
+
+  <ul class="facts">
+    <li><b>Your voice stays on your Mac.</b> Speech to text runs locally. Only the text of your request goes to Claude.</li>
+    <li><b>It remembers the conversation.</b> "And is it charging?" after a battery question just works.</li>
+    <li><b>English or Turkish.</b> English replies use a macOS voice, Turkish ones use EMA Lightning.</li>
+    <li><b>"Appreciated, Jager"</b> sends it home.</li>
+  </ul>
+</section>
+
+<section id="install">
+  <h2>Install</h2>
+  <ol class="steps-list">
+    <li>
+      <p>Install <a href="https://claude.com/claude-code">Claude Code</a> and log in once.
+      Jager borrows its brain.</p>
+      <pre><code>claude</code></pre>
+    </li>
+    <li>
+      <p>Give it ears.</p>
+      <pre><code>brew install whisper-cpp</code></pre>
+    </li>
+    <li>
+      <p><a href="#download">Download the dmg</a>, drag Jager into Applications and open it.
+      macOS will say it can't check the developer because I didn't pay Apple $99.
+      Go to System Settings → Privacy &amp; Security → Open Anyway. Once.</p>
+    </li>
+    <li>
+      <p>Allow the microphone. Say "Jager, what time is it?" and enjoy your new butler.</p>
+    </li>
+    <li class="optional">
+      <p>Optional: Turkish replies. Then pick Türkçe under Reply language in the Jager menu.</p>
+      <pre><code>git clone https://github.com/kaanklcrsln/J.A.G.E.R.
+cd J.A.G.E.R. &amp;&amp; npm run setup:turkish</code></pre>
+    </li>
+  </ol>
+
+  <div class="warn">
+    <b>Read this bit.</b> Jager runs Claude Code with full permissions, no confirmations. It can run
+    commands, move and delete files and drive your apps. If it mishears you, it acts on what it heard.
+    I'm fine with that on my own laptop. Decide for yourself, and turn off the wake word in the menu
+    if you'd rather only use <kbd>⌥</kbd> <kbd>Space</kbd>.
+  </div>
+
+  <table class="keys">
+    <tr><td>"Jager, …"</td><td>ask for anything</td></tr>
+    <tr><td><kbd>⌥</kbd> <kbd>Space</kbd></td><td>talk without saying its name</td></tr>
+    <tr><td>"Jager, stop" or <kbd>⌥</kbd> <kbd>Esc</kbd></td><td>cancel whatever it's doing</td></tr>
+    <tr><td>"Appreciated, Jager"</td><td>stop listening, forget the conversation</td></tr>
+  </table>
+</section>
+
+</main>
+
+<footer>
+  <img src="logo-square.png" alt="" width="40" height="40">
+  <p>Made by <a href="https://github.com/kaanklcrsln">kaanklcrsln</a>, mostly at night.
+  MIT licensed. No butlers were harmed.</p>
+</footer>
+
+<script src="island.js"></script>
+</body>
+</html>
